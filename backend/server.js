@@ -1,19 +1,26 @@
-// backend/server.js
-require("dotenv").config();
 const express = require("express");
-const connectDB = require("./config/db");
-const chatRoutes = require("./routes/chatRoutes");
-const cron = require("node-cron");
+const cors = require("cors");
+const dotenv = require("dotenv");
 
-connectDB();
+dotenv.config();
+
+const { loadCV } = require("./services/cvService");
+const chatRoutes = require("./routes/chat");
+const healthRoutes = require("./routes/health");
+
 const app = express();
+app.use(cors());
 app.use(express.json());
-app.use("/api", chatRoutes);
-
-cron.schedule("0 0 * * *", async () => {
-  console.log("Backing up data...");
-  // Add actual backup logic here, e.g., using mongodump or exporting data
-});
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Load CV at server start
+loadCV();
+
+// Routes
+app.use("/api/chat", chatRoutes);
+app.use("/api/health", healthRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Backend listening on http://localhost:${PORT}`);
+});
