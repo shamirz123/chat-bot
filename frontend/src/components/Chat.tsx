@@ -2,13 +2,26 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiSend, FiX, FiUser, FiLoader, FiCpu } from "react-icons/fi";
+import { FiX, FiUser } from "react-icons/fi";
 import { BsRobot, BsSendFill, BsStopCircle } from "react-icons/bs";
 
+// Types
+export type ChatRole = "user" | "Shaz" | "system" | "assistant" | string;
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
+  id: string;
+}
+
+interface SSEPayload {
+  delta?: string;
+  error?: string;
+  text?: string;
+}
+
 const Chat = () => {
-  const [messages, setMessages] = useState<
-    { role: string; content: string; id: string }[]
-  >([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -32,7 +45,7 @@ const Chat = () => {
 
     setLoading(true);
     setIsTyping(true);
-    const userMessage = {
+    const userMessage: ChatMessage = {
       role: "user",
       content: userText,
       id: Date.now().toString(),
@@ -62,26 +75,28 @@ const Chat = () => {
       if (!ctype.includes("text/event-stream")) {
         const text = await response.text();
         try {
-          const json = JSON.parse(text);
+          const json = JSON.parse(text) as SSEPayload;
           if (json.text) {
             setMessages((prev) => [
               ...prev,
               {
                 role: "Shaz",
-                content: json.text,
+                content: json.text || "",
                 id: (Date.now() + 1).toString(),
               },
             ]);
             return;
           }
-        } catch {}
+        } catch {
+          /* ignore JSON parse error */
+        }
         throw new Error(`Expected SSE, got: ${ctype}`);
       }
 
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let assistantMessageId = (Date.now() + 1).toString();
+      const assistantMessageId = (Date.now() + 1).toString(); // const (not reassigned)
 
       setMessages((prev) => [
         ...prev,
@@ -94,6 +109,8 @@ const Chat = () => {
         buffer += decoder.decode(value, { stream: true });
 
         let idx: number;
+        // Process SSE chunks separated by double newlines
+        // Each event may contain multiple `data:` lines
         while ((idx = buffer.indexOf("\n\n")) !== -1) {
           const rawEvent = buffer.slice(0, idx).trim();
           buffer = buffer.slice(idx + 2);
@@ -108,26 +125,22 @@ const Chat = () => {
           const payload = dataLines.join("");
           if (payload === "[DONE]") continue;
 
-          let json: any;
+          let json: SSEPayload;
           try {
-            json = JSON.parse(payload);
+            json = JSON.parse(payload) as SSEPayload;
           } catch {
-            continue;
+            continue; // skip malformed chunk
           }
 
           if (json.error) throw new Error(json.error);
-          if (json.delta) {
-            setMessages((prev) => {
-              return prev.map((msg) => {
-                if (msg.id === assistantMessageId) {
-                  return {
-                    ...msg,
-                    content: msg.content + String(json.delta),
-                  };
-                }
-                return msg;
-              });
-            });
+          if (typeof json.delta === "string") {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMessageId
+                  ? { ...msg, content: msg.content + String(json.delta) }
+                  : msg
+              )
+            );
           }
         }
       }
@@ -207,11 +220,12 @@ const Chat = () => {
                 <BsRobot className="text-4xl" />
               </motion.div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                Hello! I'm your AI Shaz
+                {/* Escape apostrophe for lint rule */}
+                Hello! I&amp;apos;m your AI Shaz
               </h2>
               <p className="max-w-md">
-                Ask me anything and I'll do my best to help you with your
-                questions.
+                Ask me anything and I&amp;apos;ll do my best to help you with
+                your questions.
               </p>
               <div className="mt-6 grid grid-cols-2 gap-3 w-full max-w-md">
                 {[
@@ -344,7 +358,13 @@ const Chat = () => {
   );
 };
 
-const MessageBubble = ({ message, index }: { message: any; index: number }) => {
+const MessageBubble = ({
+  message,
+  index,
+}: {
+  message: ChatMessage;
+  index: number;
+}) => {
   const isUser = message.role === "user";
 
   return (
