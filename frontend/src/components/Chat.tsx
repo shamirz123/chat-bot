@@ -220,12 +220,11 @@ const Chat = () => {
                 <BsRobot className="text-4xl" />
               </motion.div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                {/* Escape apostrophe for lint rule */}
-                Hello! I&amp;apos;m your AI Shaz
+                Hello! I'm your AI Shaz
               </h2>
               <p className="max-w-md">
-                Ask me anything and I&amp;apos;ll do my best to help you with
-                your questions.
+                Ask me anything and I'll do my best to help you with your
+                questions.
               </p>
               <div className="mt-6 grid grid-cols-2 gap-3 w-full max-w-md">
                 {[
