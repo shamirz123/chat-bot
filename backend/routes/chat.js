@@ -3,6 +3,8 @@ const router = express.Router();
 const { genAI } = require("../config/googleAI");
 const { getCVText } = require("../services/cvService");
 const { mentionsMe } = require("../utils/nameMatcher");
+const auth = require("../middleware/auth"); // Add this import
+const Message = require("../models/Message");
 
 // Generate system prompt dynamically
 function getSystemPrompt() {
@@ -16,30 +18,66 @@ Structure the response with bullet points for experience, skills, education, pro
 `;
 }
 
-// Non-streaming chat
-router.post("/", async (req, res) => {
+// GET chat history
+router.get("/history", auth, async (req, res) => {
   try {
-    const { messages = [] } = req.body;
-    const model = genAI.getGenerativeModel({ model: process.env.MODEL_NAME });
+    const userId = req.user.userId;
+    const history = await Message.find({ userId }).sort("timestamp");
+    res.json(
+      history.map((m) => ({
+        role: m.role,
+        content: m.content,
+        id: m._id.toString(),
+      }))
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
+});
 
-    const fullPrompt =
-      getSystemPrompt() +
-      "\n\n" +
-      messages
-        .map((m) => {
-          let content = m.content;
-          if (m.role === "user" && mentionsMe(m.content)) {
-            content = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${content}`;
-          }
-          return `${m.role.toUpperCase()}: ${content}`;
-        })
-        .join("\n\n");
+// Non-streaming chat
+router.post("/", auth, async (req, res) => {
+  try {
+    const { message } = req.body; // Now expects { message: string }
+    if (!message) return res.status(400).json({ error: "Message required" });
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+    const userId = req.user.userId;
+    const history = await Message.find({ userId }).sort("timestamp");
+    const prevMessages = history.map((m) => ({
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.content }],
+    }));
+
+    const model = genAI.getGenerativeModel({
+      model: process.env.MODEL_NAME,
+      systemInstruction: getSystemPrompt(),
     });
 
-    res.json({ text: result.response.text() });
+    const chat = model.startChat({ history: prevMessages });
+
+    let userContent = message;
+    if (mentionsMe(message)) {
+      userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${message}`;
+    }
+
+    const result = await chat.sendMessage(userContent);
+
+    const responseText = result.response.text();
+
+    // Save user message
+    const userMsg = new Message({ userId, role: "user", content: message });
+    await userMsg.save();
+
+    // Save assistant message
+    const assistantMsg = new Message({
+      userId,
+      role: "Shaz",
+      content: responseText,
+    });
+    await assistantMsg.save();
+
+    res.json({ text: responseText });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to generate response" });
@@ -47,37 +85,59 @@ router.post("/", async (req, res) => {
 });
 
 // Streaming chat
-router.post("/stream", async (req, res) => {
+router.post("/stream", auth, async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const { messages = [] } = req.body;
-    const model = genAI.getGenerativeModel({ model: process.env.MODEL_NAME });
+    const { message } = req.body; // Now expects { message: string }
+    if (!message) {
+      res.write(`data: ${JSON.stringify({ error: "Message required" })}\n\n`);
+      return res.end();
+    }
 
-    const fullPrompt =
-      getSystemPrompt() +
-      "\n\n" +
-      messages
-        .map((m) => {
-          let content = m.content;
-          if (m.role === "user" && mentionsMe(m.content)) {
-            content = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${content}`;
-          }
-          return `${m.role.toUpperCase()}: ${content}`;
-        })
-        .join("\n\n");
+    const userId = req.user.userId;
+    const history = await Message.find({ userId }).sort("timestamp");
+    const prevMessages = history.map((m) => ({
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.content }],
+    }));
 
-    const streaming = await model.generateContentStream({
-      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+    const model = genAI.getGenerativeModel({
+      model: process.env.MODEL_NAME,
+      systemInstruction: getSystemPrompt(),
     });
 
+    const chat = model.startChat({ history: prevMessages });
+
+    let userContent = message;
+    if (mentionsMe(message)) {
+      userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${message}`;
+    }
+
+    const streaming = await chat.sendMessageStream(userContent);
+
+    let fullResponse = "";
     for await (const chunk of streaming.stream) {
       const chunkText = chunk.text();
-      if (chunkText)
+      if (chunkText) {
+        fullResponse += chunkText;
         res.write(`data: ${JSON.stringify({ delta: chunkText })}\n\n`);
+      }
     }
+
+    // Save user message
+    const userMsg = new Message({ userId, role: "user", content: message });
+    await userMsg.save();
+
+    // Save assistant message
+    const assistantMsg = new Message({
+      userId,
+      role: "Shaz",
+      content: fullResponse,
+    });
+    await assistantMsg.save();
 
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();
