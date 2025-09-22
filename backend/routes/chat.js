@@ -3,10 +3,9 @@ const router = express.Router();
 const { genAI } = require("../config/googleAI");
 const { getCVText } = require("../services/cvService");
 const { mentionsMe } = require("../utils/nameMatcher");
-const auth = require("../middleware/auth"); // Add this import
+const auth = require("../middleware/auth");
 const Message = require("../models/Message");
 
-// Generate system prompt dynamically
 function getSystemPrompt() {
   return `
 You are Shaz, an AI assistant created by Shahmir. Always respond helpfully and engagingly.
@@ -18,7 +17,6 @@ Structure the response with bullet points for experience, skills, education, pro
 `;
 }
 
-// GET chat history
 router.get("/history", auth, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -36,7 +34,6 @@ router.get("/history", auth, async (req, res) => {
   }
 });
 
-// Non-streaming chat
 router.post("/", auth, async (req, res) => {
   try {
     const { message } = req.body; // Now expects { message: string }
@@ -84,7 +81,6 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// Streaming chat
 router.post("/stream", auth, async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
