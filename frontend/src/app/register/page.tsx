@@ -10,7 +10,8 @@ const Register = () => {
   const [authError, setAuthError] = useState("");
   const router = useRouter();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
   const handleRegister = async () => {
     setAuthError("");
@@ -24,8 +25,12 @@ const Register = () => {
       if (!response.ok) throw new Error(data.error || "Registration failed");
       router.push("/login");
       setAuthError("Registration successful! Please login.");
-    } catch (err: any) {
-      setAuthError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setAuthError(err.message);
+      } else {
+        setAuthError("An unknown error occurred.");
+      }
     }
   };
 

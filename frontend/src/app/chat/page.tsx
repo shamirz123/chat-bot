@@ -30,7 +30,8 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -225,7 +226,9 @@ const Chat = () => {
               onClick={() => handleHistoryClick(msg)}
               className="w-full text-left p-2 mb-2 bg-gray-800 rounded-lg text-sm hover:bg-gray-700 transition-colors truncate"
             >
-              {msg.content.length > 30 ? msg.content.slice(0, 30) + "..." : msg.content}
+              {msg.content.length > 30
+                ? msg.content.slice(0, 30) + "..."
+                : msg.content}
             </motion.button>
           ))}
       </div>
@@ -293,11 +296,13 @@ const Chat = () => {
                   <BsRobot className="text-4xl" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white mb-2">
-                  Hello! I'm your AI Shaz
+                  Hello! I&apos;m your AI Shaz
                 </h2>
                 <p className="max-w-md">
-                  Ask me anything and I'll do my best to help you with your questions.
+                  Ask me anything and I&apos;ll do my best to help you with your
+                  questions.
                 </p>
+
                 <div className="mt-6 grid grid-cols-2 gap-3 w-full max-w-md">
                   {[
                     "Who is Shahmir?",
@@ -376,9 +381,7 @@ const Chat = () => {
                 placeholder="Type your message here..."
                 className="w-full p-4 pr-12 bg-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 disabled={loading}
-                rows={1
-
-}
+                rows={1}
               />
               {input && (
                 <motion.button
@@ -424,7 +427,8 @@ const Chat = () => {
           </motion.div>
 
           <div className="mt-3 text-xs text-gray-500 text-center">
-            Gemini AI can make mistakes. Consider checking important information.
+            Gemini AI can make mistakes. Consider checking important
+            information.
           </div>
         </div>
       </div>
