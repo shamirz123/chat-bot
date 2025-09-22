@@ -10,7 +10,8 @@ const Login = () => {
   const [authError, setAuthError] = useState("");
   const router = useRouter();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
   const handleLogin = async () => {
     setAuthError("");
@@ -24,8 +25,10 @@ const Login = () => {
       if (!response.ok) throw new Error(data.error || "Login failed");
       localStorage.setItem("token", data.token);
       router.push("/chat");
-    } catch (err: any) {
-      setAuthError(err.message);
+    } catch (err: unknown) {
+      setAuthError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
 
@@ -66,7 +69,7 @@ const Login = () => {
           onClick={() => router.push("/register")}
           className="w-full text-blue-400 hover:underline"
         >
-          Don't have an account? Register
+          Don&apos;t have an account? Register
         </button>
       </div>
     </div>

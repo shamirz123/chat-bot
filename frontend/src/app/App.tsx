@@ -2,14 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import Login from "./login/page";
-import Register from "./register/page";
-import Chat from "./chat/page";
 
 const Home = () => {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
-  const [isRegister, setIsRegister] = useState(false);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -29,7 +25,6 @@ const Home = () => {
     }
   }, [token]);
 
-  // Render nothing here; routing handled by useEffect
   return null;
 };
 
