@@ -12,13 +12,13 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 
-// Enable CORS for your Vercel frontend (update the origin in production)
+// Enable CORS for Vercel frontend
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:3000" // Frontend dev server
-        : "https://shahmir-bot.vercel.app", // Replace with your Vercel URL
+    origin: [
+      "https://shahmir-bot.vercel.app",
+      "https://chat-bot-pi-gray.vercel.app",
+    ],
     credentials: true,
   })
 );
@@ -41,12 +41,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/health", healthRoutes);
 
-// Optional: Add a root route to avoid the "Cannot GET /" error
+// Optional root route
 app.get("/", (_req, res) => {
   res.json({ message: "Backend is running. Use /api/* endpoints." });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Backend listening on http://localhost:${PORT}`);
+  console.log(`Backend listening on port ${PORT}`);
 });
