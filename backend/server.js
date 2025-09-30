@@ -13,15 +13,7 @@ const authRoutes = require("./routes/auth");
 const app = express();
 
 // Enable CORS for Vercel frontend
-app.use(
-  cors({
-    origin: [
-      "https://shahmir-bot.vercel.app",
-      "https://chat-bot-pi-gray.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
