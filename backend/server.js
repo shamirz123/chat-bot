@@ -12,8 +12,30 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 
-// Enable CORS for Vercel frontend
-app.use(cors());
+// CORS configuration for production
+const allowedOrigins = [
+  "https://shahmir-bot.vercel.app",
+  "http://localhost:3000", // for local development
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
@@ -33,12 +55,20 @@ app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/health", healthRoutes);
 
-// Optional root route
+// Root route
 app.get("/", (_req, res) => {
   res.json({ message: "Backend is running. Use /api/* endpoints." });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
 });
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
 });
+
+module.exports = app; // Export for Vercel
