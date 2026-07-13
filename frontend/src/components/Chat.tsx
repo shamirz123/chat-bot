@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiUser, FiLogOut } from "react-icons/fi";
 import { BsRobot, BsSendFill, BsStopCircle } from "react-icons/bs";
 
-export type ChatRole = "user" | "Shaz" | "system" | "assistant" | string;
+export type ChatRole = "user" | "shamirbot" | "system" | "assistant" | string;
 
 export interface ChatMessage {
   role: ChatRole;
@@ -111,7 +111,7 @@ const Chat = () => {
             setMessages((prev) => [
               ...prev,
               {
-                role: "Shaz",
+                role: "shamirbot",
                 content: json.text || "",
                 id: (Date.now() + 1).toString(),
               },
@@ -132,7 +132,7 @@ const Chat = () => {
 
       setMessages((prev) => [
         ...prev,
-        { role: "Shaz", content: "", id: assistantMessageId },
+        { role: "shamirbot", content: "", id: assistantMessageId },
       ]);
 
       while (true) {
@@ -180,7 +180,7 @@ const Chat = () => {
       setMessages((prev) => [
         ...prev,
         {
-          role: "Shaz",
+          role: "shamirbot",
           content: "Sorry, something went wrong. Please try again.",
           id: Date.now().toString(),
         },
@@ -296,7 +296,7 @@ const Chat = () => {
                   <BsRobot className="text-4xl" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white mb-2">
-                  Hello! I&apos;m your AI Shaz
+                  Hello! I&apos;m your AI shamirbot
                 </h2>
                 <p className="max-w-md">
                   Ask me anything and I&apos;ll do my best to help you with your

@@ -2,7 +2,7 @@
 
 import styles from "../styles/chat.module.css";
 
-type Props = { role: "user" | "Shaz"; text: string };
+type Props = { role: "user" | "shamirbot"; text: string };
 
 export default function MessageBubble({ role, text }: Props) {
   const isUser = role === "user";
