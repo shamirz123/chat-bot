@@ -2,8 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const dns = require("dns");
 
 dotenv.config();
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const { loadCV } = require("./services/cvService");
 const chatRoutes = require("./routes/chat");
@@ -36,3 +39,5 @@ app.get("/", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
 });
+
+module.exports = app;

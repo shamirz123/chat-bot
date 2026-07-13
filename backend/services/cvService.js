@@ -4,7 +4,7 @@ const pdfParse = require("pdf-parse");
 let CV_TEXT = "No CV data available.";
 
 async function loadCV() {
-  const pdfPath = "./Mern-stack-shahmeer-zubair.pdf"; 
+  const pdfPath = "./Web Developer - Shahmeer Zubair.pdf"; 
   try {
     const dataBuffer = await fs.readFile(pdfPath);
     const pdfData = await pdfParse(dataBuffer);

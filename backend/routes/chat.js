@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { genAI } = require("../config/googleAI");
+const { ai, MODEL_NAME } = require("../config/googleAI");
 const { getCVText } = require("../services/cvService");
 const { mentionsMe } = require("../utils/nameMatcher");
 const auth = require("../middleware/auth");
@@ -8,7 +8,7 @@ const Message = require("../models/Message");
 
 function getSystemPrompt() {
   return `
-You are Shaz, an AI assistant created by Shahmir. Always respond helpfully and engagingly.
+You are shamirbot, an AI assistant created by Shahmir. Always respond helpfully and engagingly.
 If the user asks about Shahmir (e.g., "who is Shahmir?", "tell me about yourself" if referring to the creator, or similar), provide detailed information extracted from Shahmir's CV below:
 
 ${getCVText()}
@@ -36,7 +36,7 @@ router.get("/history", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   try {
-    const { message } = req.body; // Now expects { message: string }
+    const { message } = req.body;
     if (!message) return res.status(400).json({ error: "Message required" });
 
     const userId = req.user.userId;
@@ -46,30 +46,26 @@ router.post("/", auth, async (req, res) => {
       parts: [{ text: m.content }],
     }));
 
-    const model = genAI.getGenerativeModel({
-      model: process.env.MODEL_NAME,
-      systemInstruction: getSystemPrompt(),
+    const chat = ai.chats.create({
+      model: MODEL_NAME,
+      history: prevMessages,
+      config: { systemInstruction: getSystemPrompt() },
     });
-
-    const chat = model.startChat({ history: prevMessages });
 
     let userContent = message;
     if (mentionsMe(message)) {
       userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${message}`;
     }
 
-    const result = await chat.sendMessage(userContent);
+    const result = await chat.sendMessage({ message: userContent });
+    const responseText = result.text;
 
-    const responseText = result.response.text();
-
-    // Save user message
     const userMsg = new Message({ userId, role: "user", content: message });
     await userMsg.save();
 
-    // Save assistant message
     const assistantMsg = new Message({
       userId,
-      role: "Shaz",
+      role: "shamirbot",
       content: responseText,
     });
     await assistantMsg.save();
@@ -87,7 +83,7 @@ router.post("/stream", auth, async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const { message } = req.body; // Now expects { message: string }
+    const { message } = req.body;
     if (!message) {
       res.write(`data: ${JSON.stringify({ error: "Message required" })}\n\n`);
       return res.end();
@@ -100,37 +96,34 @@ router.post("/stream", auth, async (req, res) => {
       parts: [{ text: m.content }],
     }));
 
-    const model = genAI.getGenerativeModel({
-      model: process.env.MODEL_NAME,
-      systemInstruction: getSystemPrompt(),
+    const chat = ai.chats.create({
+      model: MODEL_NAME,
+      history: prevMessages,
+      config: { systemInstruction: getSystemPrompt() },
     });
-
-    const chat = model.startChat({ history: prevMessages });
 
     let userContent = message;
     if (mentionsMe(message)) {
       userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${message}`;
     }
 
-    const streaming = await chat.sendMessageStream(userContent);
+    const streaming = await chat.sendMessageStream({ message: userContent });
 
     let fullResponse = "";
-    for await (const chunk of streaming.stream) {
-      const chunkText = chunk.text();
+    for await (const chunk of streaming) {
+      const chunkText = chunk.text;
       if (chunkText) {
         fullResponse += chunkText;
         res.write(`data: ${JSON.stringify({ delta: chunkText })}\n\n`);
       }
     }
 
-    // Save user message
     const userMsg = new Message({ userId, role: "user", content: message });
     await userMsg.save();
 
-    // Save assistant message
     const assistantMsg = new Message({
       userId,
-      role: "Shaz",
+      role: "shamirbot",
       content: fullResponse,
     });
     await assistantMsg.save();
@@ -140,7 +133,7 @@ router.post("/stream", auth, async (req, res) => {
   } catch (err) {
     console.error(err);
     try {
-      res.write(`data: ${JSON.stringify({ error: "stream_error" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: err.message || "stream_error" })}\n\n`);
       res.end();
     } catch {}
   }
