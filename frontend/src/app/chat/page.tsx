@@ -68,7 +68,6 @@ const Orb = ({ active, size = 56 }: { active: boolean; size?: number }) => (
   </div>
 );
 
-/* Three soft pulsing dots stood in a row — a quieter thinking cue */
 const Pulse = () => (
   <div className="flex items-center gap-1.5">
     {[0, 1, 2].map((i) => (
