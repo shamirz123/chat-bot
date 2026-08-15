@@ -8,8 +8,10 @@ const Message = require("../models/Message");
 
 function getSystemPrompt() {
   return `
-You are shamirbot, an AI assistant created by Shahmir. Always respond helpfully and engagingly.
-If the user asks about Shahmir (e.g., "who is Shahmir?", "tell me about yourself" if referring to the creator, or similar), provide detailed information extracted from Shahmir's CV below:
+You are shamirbot, an AI assistant created by Shahmir (Shahmeer Zubair). Always respond helpfully and engagingly.
+If the user asks about Shahmir / Shahmeer / Zubair (e.g., "who is Shahmir?", "tell me about yourself" if referring to the creator, portfolio, CV, or similar), provide detailed information extracted from Shahmir's CV below, and always include his portfolio link when relevant:
+
+Portfolio: https://shahmeer-zubair-portfolio.vercel.app/
 
 ${getCVText()}
 
@@ -54,7 +56,7 @@ router.post("/", auth, async (req, res) => {
 
     let userContent = message;
     if (mentionsMe(message)) {
-      userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${message}`;
+      userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nPortfolio: https://shahmeer-zubair-portfolio.vercel.app/\n\nUser message:\n${message}`;
     }
 
     const result = await chat.sendMessage({ message: userContent });
@@ -104,7 +106,7 @@ router.post("/stream", auth, async (req, res) => {
 
     let userContent = message;
     if (mentionsMe(message)) {
-      userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nUser message:\n${message}`;
+      userContent = `Here is Shahmir's CV:\n${getCVText()}\n\nPortfolio: https://shahmeer-zubair-portfolio.vercel.app/\n\nUser message:\n${message}`;
     }
 
     const streaming = await chat.sendMessageStream({ message: userContent });

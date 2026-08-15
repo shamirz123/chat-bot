@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import BrandMark from "../../components/BrandMark";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -37,83 +38,83 @@ const Login = () => {
   };
 
   return (
-    <div className="fixed inset-0 overflow-hidden flex flex-col items-center justify-center bg-[#14101B] text-[#F3EFFA] font-[var(--font-body)] px-4">
-      <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden>
+    <div className="fixed inset-0 overflow-hidden studio-atmosphere studio-hatch studio-grain flex flex-col items-center justify-center px-5 text-[var(--studio-ink)] font-[var(--font-body)]">
+      <div className="relative z-10 w-full max-w-md">
         <motion.div
-          className="absolute w-[55vw] h-[55vw] rounded-full blur-[140px]"
-          style={{ background: "#A78BFA22", top: "-15%", left: "-15%" }}
-          animate={{ opacity: [0.5, 0.8, 0.5] }}
-          transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
-        />
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10"
+        >
+          <p className="font-[var(--font-mono)] text-[10px] tracking-[0.22em] uppercase text-[var(--studio-muted)] mb-3">
+            Your AI studio
+          </p>
+          <BrandMark size="lg" as="h1" breathe />
+          <p className="mt-4 text-[var(--studio-pine-muted)] text-base leading-relaxed max-w-sm">
+            Welcome back. Sign in to continue your thread.
+          </p>
+        </motion.div>
+
         <motion.div
-          className="absolute w-[45vw] h-[45vw] rounded-full blur-[140px]"
-          style={{ background: "#FF8A6522", bottom: "-15%", right: "-15%" }}
-          animate={{ opacity: [0.4, 0.7, 0.4] }}
-          transition={{ repeat: Infinity, duration: 11, ease: "easeInOut", delay: 1.5 }}
-        />
-      </div>
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="space-y-5 bg-[var(--studio-surface-strong)] border border-[var(--studio-line)] backdrop-blur-md p-6 sm:p-7"
+        >
+          <div>
+            <label className="font-[var(--font-mono)] text-[10px] tracking-[0.18em] uppercase text-[var(--studio-muted)]">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@email.com"
+              className="mt-2 w-full bg-transparent border-0 border-b-2 border-[var(--studio-line)] focus:border-[var(--studio-vermillion)] focus:outline-none py-3 placeholder:text-[var(--studio-muted)] transition-colors"
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            />
+          </div>
+          <div>
+            <label className="font-[var(--font-mono)] text-[10px] tracking-[0.18em] uppercase text-[var(--studio-muted)]">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="mt-2 w-full bg-transparent border-0 border-b-2 border-[var(--studio-line)] focus:border-[var(--studio-vermillion)] focus:outline-none py-3 placeholder:text-[var(--studio-muted)] transition-colors"
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            />
+          </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 flex flex-col items-center mb-8"
-      >
-        <div
-          className="w-12 h-12 mb-4"
-          style={{
-            background: "linear-gradient(135deg, #A78BFA 0%, #FF8A65 100%)",
-            borderRadius: "48% 52% 55% 45% / 48% 48% 52% 52%",
-          }}
-        />
-        <h1 className="font-[var(--font-display)] italic text-3xl">Welcome back</h1>
-        <p className="text-sm text-[#948FA3] mt-1">shamirbot has been waiting.</p>
-      </motion.div>
+          {authError && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-[var(--studio-vermillion)] text-sm"
+            >
+              {authError}
+            </motion.p>
+          )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="relative z-10 w-full max-w-md space-y-3.5 p-6 rounded-3xl bg-[#1D1826]/70 border border-[#2E2740] backdrop-blur-xl"
-      >
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full p-4 bg-[#14101B]/70 border border-[#2E2740] rounded-2xl text-[#F3EFFA] placeholder:text-[#665F78] focus:outline-none focus:border-[#A78BFA] transition-colors"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-4 bg-[#14101B]/70 border border-[#2E2740] rounded-2xl text-[#F3EFFA] placeholder:text-[#665F78] focus:outline-none focus:border-[#A78BFA] transition-colors"
-        />
-        {authError && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-[#FF8A65] text-sm text-center"
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full py-3.5 bg-[var(--studio-vermillion)] text-white font-medium hover:brightness-95 transition-all disabled:opacity-60"
           >
-            {authError}
-          </motion.p>
-        )}
-        <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full p-4 bg-gradient-to-br from-[#A78BFA] to-[#FF8A65] text-[#14101B] font-medium rounded-2xl hover:brightness-105 transition-all disabled:opacity-60"
-        >
-          {loading ? "Signing in…" : "Sign in"}
-        </motion.button>
-        <button
-          onClick={() => router.push("/register")}
-          className="w-full text-[#A78BFA] hover:underline text-sm pt-1"
-        >
-          No account yet? Register
-        </button>
-      </motion.div>
+            {loading ? "Signing in…" : "Sign in"}
+          </motion.button>
+
+          <button
+            onClick={() => router.push("/register")}
+            className="w-full text-sm text-[var(--studio-pine)] hover:text-[var(--studio-vermillion)] transition-colors pt-1"
+          >
+            No account yet? Register
+          </button>
+        </motion.div>
+      </div>
     </div>
   );
 };

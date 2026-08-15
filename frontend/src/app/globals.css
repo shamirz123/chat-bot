@@ -1,19 +1,66 @@
 @import "tailwindcss";
 
-html, body {
-  background: #0D0F17;
+:root {
+  --studio-mint: #12201a;
+  --studio-paper: #0a1210;
+  --studio-pine: #c5e0d2;
+  --studio-pine-muted: #8aa396;
+  --studio-ink: #e8f0ec;
+  --studio-vermillion: #ff4d2e;
+  --studio-vermillion-soft: #ff4d2e33;
+  --studio-line: #243830;
+  --studio-line-strong: #3a5248;
+  --studio-surface: rgba(18, 32, 26, 0.72);
+  --studio-surface-strong: rgba(22, 38, 30, 0.9);
+  --studio-panel: #101a16;
+  --studio-user: #1a3328;
+  --studio-muted: #7a9588;
+  --font-display: var(--font-syne), sans-serif;
+  --font-body: var(--font-figtree), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+}
+
+html,
+body {
   height: 100%;
   margin: 0;
 }
 
 body {
-  color: #F3F1EA;
-  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  color: var(--studio-ink);
+  background: var(--studio-paper);
+  font-family: var(--font-body);
+}
+
+.studio-atmosphere {
+  background:
+    linear-gradient(165deg, #0e1a15 0%, var(--studio-paper) 42%, #0f1c17 100%);
+}
+
+.studio-hatch {
+  background-image:
+    repeating-linear-gradient(
+      -28deg,
+      transparent,
+      transparent 11px,
+      rgba(197, 224, 210, 0.04) 11px,
+      rgba(197, 224, 210, 0.04) 12px
+    );
+}
+
+.studio-grain::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2a3040 transparent;
+  scrollbar-color: var(--studio-line-strong) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -26,12 +73,12 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #2a3040;
+  background-color: var(--studio-line-strong);
   border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #3a4257;
+  background-color: var(--studio-pine-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {
