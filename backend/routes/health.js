@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { MODEL_NAME } = require("../config/googleAI");
+const { EMBEDDING_MODEL } = require("../services/embeddings");
 const { connectDB, isDBReady } = require("../config/db");
 
 router.get("/", async (_req, res) => {
@@ -18,6 +19,7 @@ router.get("/", async (_req, res) => {
   res.status(ok ? 200 : 503).json({
     ok,
     model: MODEL_NAME,
+    embeddingModel: EMBEDDING_MODEL,
     db,
     ...(dbError ? { dbError } : {}),
     jwtSecret: process.env.JWT_SECRET ? "set" : "missing",

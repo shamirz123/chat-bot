@@ -1,53 +1,33 @@
-"use client";
-
-import { motion } from "framer-motion";
-
 type BrandMarkProps = {
-  size?: "sm" | "md" | "lg" | "hero";
-  breathe?: boolean;
-  as?: "h1" | "h2" | "p" | "span";
+  size?: "sm" | "md" | "lg";
   className?: string;
 };
 
-const sizeClass = {
-  sm: "text-xl md:text-2xl",
-  md: "text-3xl",
-  lg: "text-5xl sm:text-6xl",
-  hero: "text-5xl sm:text-6xl md:text-7xl",
+const box = {
+  sm: "h-7 w-7",
+  md: "h-9 w-9",
+  lg: "h-12 w-12",
 } as const;
 
-export default function BrandMark({
-  size = "md",
-  breathe = false,
-  as = "span",
-  className = "",
-}: BrandMarkProps) {
-  const classes = `font-[var(--font-display)] font-extrabold tracking-tight leading-[0.92] ${sizeClass[size]} ${className}`;
-  const content = (
-    <>
-      <span className="text-[var(--studio-pine)]">shamir</span>
-      <span className="text-[var(--studio-vermillion)]">bot</span>
-    </>
-  );
-
-  if (breathe) {
-    const MotionTag = motion[as];
-    return (
-      <MotionTag
-        className={classes}
-        aria-label="shamirbot"
-        animate={{ letterSpacing: ["-0.045em", "-0.02em", "-0.045em"] }}
-        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-      >
-        {content}
-      </MotionTag>
-    );
-  }
-
-  const Tag = as;
+/** AskShamir logo (same artwork as app/icon.svg) for the header, auth pages and bot replies. */
+export default function BrandMark({ size = "md", className = "" }: BrandMarkProps) {
   return (
-    <Tag className={classes} aria-label="shamirbot">
-      {content}
-    </Tag>
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 64 64"
+      className={`shrink-0 ${box[size]} ${className}`}
+    >
+      <rect width="64" height="64" rx="15" className="fill-accent" />
+      <rect x="11" y="12" width="42" height="33" rx="10" className="fill-accent-ink" />
+      <path d="M19 43h11l-9 10z" className="fill-accent-ink" />
+      <path
+        d="M24.5 37.5 32 20l7.5 17.5M27.5 32.5h9"
+        fill="none"
+        strokeWidth="4.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="stroke-accent"
+      />
+    </svg>
   );
 }

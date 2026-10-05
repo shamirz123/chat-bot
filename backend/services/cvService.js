@@ -1,22 +1,30 @@
 const fs = require("fs").promises;
+const path = require("path");
 const pdfParse = require("pdf-parse");
 
-let CV_TEXT = "No CV data available.";
+const CV_PATH = path.join(
+  __dirname,
+  "..",
+  "Web Developer - Shahmeer Zubair.pdf",
+);
 
-async function loadCV() {
-  const pdfPath = "./Web Developer - Shahmeer Zubair.pdf"; 
-  try {
-    const dataBuffer = await fs.readFile(pdfPath);
-    const pdfData = await pdfParse(dataBuffer);
-    CV_TEXT = pdfData.text;
-    console.log("CV loaded successfully.");
-  } catch (err) {
-    console.warn(`CV not found at ${pdfPath}.`, err.message);
+let cvPromise = null;
+
+function loadCV() {
+  if (!cvPromise) {
+    cvPromise = fs
+      .readFile(CV_PATH)
+      .then((buffer) => pdfParse(buffer))
+      .then((pdf) => {
+        console.log("CV loaded successfully.");
+        return pdf.text;
+      })
+      .catch((err) => {
+        console.warn(`CV not found at ${CV_PATH}.`, err.message);
+        return "";
+      });
   }
+  return cvPromise;
 }
 
-function getCVText() {
-  return CV_TEXT;
-}
-
-module.exports = { loadCV, getCVText };
+module.exports = { loadCV, CV_NAME: "Shahmir's CV" };

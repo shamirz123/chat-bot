@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import BrandMark from "../../components/BrandMark";
 
 const Register = () => {
@@ -37,84 +36,77 @@ const Register = () => {
   };
 
   return (
-    <div className="fixed inset-0 overflow-hidden studio-atmosphere studio-hatch studio-grain flex flex-col items-center justify-center px-5 text-[var(--studio-ink)] font-[var(--font-body)]">
-      <div className="relative z-10 w-full max-w-md">
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
-        >
-          <p className="font-[var(--font-mono)] text-[10px] tracking-[0.22em] uppercase text-[var(--studio-muted)] mb-3">
-            Your AI studio
-          </p>
-          <BrandMark size="lg" as="h1" breathe />
-          <p className="mt-4 text-[var(--studio-pine-muted)] text-base leading-relaxed max-w-sm">
-            Create an account and start a new conversation.
-          </p>
-        </motion.div>
+    <main className="flex min-h-screen items-center justify-center bg-panel px-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <BrandMark size="lg" />
+          <h1 className="mt-4 text-2xl font-semibold text-ink">Create your account</h1>
+          <p className="mt-1 text-sm text-muted">Start chatting with AskShamir</p>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
-          className="space-y-5 bg-[var(--studio-surface-strong)] border border-[var(--studio-line)] backdrop-blur-md p-6 sm:p-7"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRegister();
+          }}
+          className="space-y-4 rounded-2xl border border-line bg-page p-6 shadow-sm"
         >
           <div>
-            <label className="font-[var(--font-mono)] text-[10px] tracking-[0.18em] uppercase text-[var(--studio-muted)]">
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-ink">
               Email
             </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
-              className="mt-2 w-full bg-transparent border-0 border-b-2 border-[var(--studio-line)] focus:border-[var(--studio-vermillion)] focus:outline-none py-3 placeholder:text-[var(--studio-muted)] transition-colors"
-              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
+              autoComplete="email"
+              className="w-full rounded-lg border border-line bg-page px-3 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <div>
-            <label className="font-[var(--font-mono)] text-[10px] tracking-[0.18em] uppercase text-[var(--studio-muted)]">
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-ink">
               Password
             </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-2 w-full bg-transparent border-0 border-b-2 border-[var(--studio-line)] focus:border-[var(--studio-vermillion)] focus:outline-none py-3 placeholder:text-[var(--studio-muted)] transition-colors"
-              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
+              placeholder="At least 8 characters"
+              autoComplete="new-password"
+              className="w-full rounded-lg border border-line bg-page px-3 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
 
           {authError && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-[var(--studio-vermillion)] text-sm"
-            >
+            <p role="alert" className="text-sm text-danger">
               {authError}
-            </motion.p>
+            </p>
           )}
 
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleRegister}
-            disabled={loading}
-            className="w-full py-3.5 bg-[var(--studio-vermillion)] text-white font-medium hover:brightness-95 transition-all disabled:opacity-60"
-          >
-            {loading ? "Registering…" : "Create account"}
-          </motion.button>
-
           <button
-            onClick={() => router.push("/login")}
-            className="w-full text-sm text-[var(--studio-pine)] hover:text-[var(--studio-vermillion)] transition-colors pt-1"
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-accent py-2.5 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            Already have an account? Sign in
+            {loading ? "Creating account…" : "Create account"}
           </button>
-        </motion.div>
+        </form>
+
+        <p className="mt-5 text-center text-sm text-muted">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={() => router.push("/login")}
+            className="font-medium text-accent hover:underline"
+          >
+            Sign in
+          </button>
+        </p>
       </div>
-    </div>
+    </main>
   );
 };
 
