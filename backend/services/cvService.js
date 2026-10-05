@@ -5,7 +5,7 @@ const pdfParse = require("pdf-parse");
 const CV_PATH = path.join(
   __dirname,
   "..",
-  "Web Developer - Shahmeer Zubair.pdf",
+  "Shahmeer-Zubair-Full-Stack-React-Next-Dev.pdf",
 );
 
 let cvPromise = null;
