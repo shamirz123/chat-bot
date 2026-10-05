@@ -1,3 +1,4 @@
+import { getValidToken } from "./auth";
 import type { ChatMessage, DocumentInfo } from "./types";
 
 export const API_BASE_URL =
@@ -10,7 +11,7 @@ export class UnauthorizedError extends Error {
 }
 
 function authHeaders(): Record<string, string> {
-  const token = localStorage.getItem("token");
+  const token = getValidToken();
   if (!token) throw new UnauthorizedError();
   return { Authorization: `Bearer ${token}` };
 }

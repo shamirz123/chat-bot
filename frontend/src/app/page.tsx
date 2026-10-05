@@ -1,29 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { getValidToken } from "../lib/auth";
 
+// Entry point: signed-in users go to the chat, everyone else to the login page.
 const Home = () => {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-      router.push("/chat");
-    } else {
-      router.push("/login");
-    }
+    router.replace(getValidToken() ? "/chat" : "/login");
   }, [router]);
-
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-    } else {
-      localStorage.removeItem("token");
-    }
-  }, [token]);
 
   return null;
 };

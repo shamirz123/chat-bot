@@ -7,6 +7,7 @@ import BrandMark from "./BrandMark";
 import MessageBubble from "./MessageBubble";
 import DocumentsPanel from "./DocumentsPanel";
 import { UnauthorizedError, fetchHistory, openChatStream } from "../lib/api";
+import { clearToken } from "../lib/auth";
 import { readSSE } from "../lib/sse";
 import type { ChatMessage } from "../lib/types";
 
@@ -40,6 +41,9 @@ const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Nothing but a blank page is shown until the server has accepted our token,
+  // so signed-out users never see the chat UI flash before the login redirect.
+  const [authed, setAuthed] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -54,9 +58,11 @@ const Chat = () => {
       const historyData = await fetchHistory();
       setHistory(historyData);
       setMessages(historyData);
+      setAuthed(true);
     } catch (err) {
-      if (!(err instanceof UnauthorizedError)) console.error(err);
-      router.push("/login");
+      if (err instanceof UnauthorizedError) clearToken();
+      else console.error(err);
+      router.replace("/login");
     }
   }, [router]);
 
@@ -101,6 +107,7 @@ const Chat = () => {
 
     try {
       const response = await openChatStream(userText, controller.signal);
+      if (response.status === 401) throw new UnauthorizedError();
       if (!response.ok) throw new Error(await responseError(response));
 
       setMessages((prev) => [
@@ -125,7 +132,8 @@ const Chat = () => {
       console.error(e);
       const text = e instanceof UnauthorizedError ? null : e instanceof Error ? e.message : GENERIC_ERROR;
       if (text === null) {
-        router.push("/login");
+        clearToken();
+        router.replace("/login");
         return;
       }
       setMessages((prev) => [
@@ -146,9 +154,9 @@ const Chat = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    clearToken();
     setMessages([]);
-    router.push("/login");
+    router.replace("/login");
   };
 
   const handleHistoryClick = (message: ChatMessage) => {
@@ -158,6 +166,8 @@ const Chat = () => {
       setSidebarOpen(false);
     }
   };
+
+  if (!authed) return <div className="fixed inset-0 bg-page" />;
 
   const userHistory = history.filter((msg) => msg.role === "user");
 

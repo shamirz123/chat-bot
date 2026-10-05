@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import BrandMark from "../../components/BrandMark";
+import { getValidToken } from "../../lib/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +11,11 @@ const Login = () => {
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Already signed in? Skip the form.
+  useEffect(() => {
+    if (getValidToken()) router.replace("/chat");
+  }, [router]);
 
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
